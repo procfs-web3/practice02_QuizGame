@@ -71,7 +71,7 @@ contract Quiz{
                 }
                 else {
                     address sender = msg.sender;
-                    bets[0][sender] += msg.value;
+                    bets[quizId - 1][sender] += msg.value;
                     return;
                 }
             }
@@ -87,8 +87,8 @@ contract Quiz{
                     return true;
                 }
                 else {
-                    vault_balance += bets[0][msg.sender];
-                    bets[0][msg.sender] = 0;
+                    vault_balance += bets[quizId - 1][msg.sender];
+                    bets[quizId - 1][msg.sender] = 0;
                     return false;
                 }
             }
@@ -98,9 +98,13 @@ contract Quiz{
 
     function claim() public {
         address payable recipient = payable(msg.sender);
-        vault_balance -= 2 * bets[0][recipient];
-        recipient.transfer(2 * bets[0][recipient]);
-        bets[0][recipient]= 0;
+        for (uint i = 0; i < quiz_list.length; i++) {
+            uint quiz_id = quiz_list[i].id;
+            vault_balance -= 2 * bets[quiz_id- 1][recipient];
+            recipient.transfer(2 * bets[quiz_id -1][recipient]);
+            bets[quiz_id - 1][recipient]= 0;
+        }
+        
     }
 
     receive() external payable {
